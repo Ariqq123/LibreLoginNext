@@ -149,6 +149,11 @@ public class VelocityLibreLoginNext extends AuthenticLibreLoginNext<Player, Regi
 
     @Override
     protected AuthenticImageProjector<Player, RegisteredServer> provideImageProjector() {
+        if (!bootstrap.isPacketEventsManagedInternally()) {
+            getLogger().warn("Standalone PacketEvents plugin detected, 2FA map projector is disabled to prevent injector conflicts.");
+            return null;
+        }
+
         getLogger().info("PacketEvents detected, enabling 2FA...");
         return new PacketEventsImageProjector<>(this);
     }

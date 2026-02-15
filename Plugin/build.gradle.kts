@@ -194,11 +194,11 @@ dependencies {
     //Paper
     compileOnly("io.papermc.paper:paper-api:1.21.11-R0.1-SNAPSHOT")
     //compileOnly "com.comphenix.protocol:ProtocolLib:5.1.0"
-    libby("com.github.retrooper:packetevents-spigot:2.11.1")
+    libby("com.github.retrooper:packetevents-spigot:2.11.2")
 
     //PacketEvents for Velocity and BungeeCord
-    libby("com.github.retrooper:packetevents-velocity:2.11.1")
-    libby("com.github.retrooper:packetevents-bungeecord:2.11.1")
+    libby("com.github.retrooper:packetevents-velocity:2.11.2")
+    libby("com.github.retrooper:packetevents-bungeecord:2.11.2")
 
     compileOnly("io.netty:netty-transport:4.2.9.Final")
     compileOnly("com.mojang:datafixerupper:8.0.16") //I hate this so much

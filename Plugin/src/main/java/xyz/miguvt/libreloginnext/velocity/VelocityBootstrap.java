@@ -54,6 +54,7 @@ public class VelocityBootstrap implements LibreLoginNextProvider<Player, Registe
     PluginContainer container;
     Logger logger;
     Path dataDirectory;
+    private final boolean packetEventsManagedInternally;
     private final VelocityLibreLoginNext libreLoginNext;
 
     @Inject
@@ -88,11 +89,17 @@ public class VelocityBootstrap implements LibreLoginNextProvider<Player, Registe
 
         libraryManager.configureFromJSON();
 
-        // Initialize PacketEvents after libraries are loaded
-        PacketEvents.setAPI(VelocityPacketEventsBuilder.build(server, container, logger, dataDirectory));
-        PacketEvents.getAPI().getSettings()
-                .checkForUpdates(false);
-        PacketEvents.getAPI().load();
+        packetEventsManagedInternally = server.getPluginManager().getPlugin("packetevents").isEmpty();
+
+        if (packetEventsManagedInternally) {
+            // Initialize PacketEvents after libraries are loaded
+            PacketEvents.setAPI(VelocityPacketEventsBuilder.build(server, container, logger, dataDirectory));
+            PacketEvents.getAPI().getSettings()
+                    .checkForUpdates(false);
+            PacketEvents.getAPI().load();
+        } else {
+            logger.warn("Detected standalone PacketEvents plugin, disabling bundled PacketEvents to avoid pipeline conflicts.");
+        }
 
         libreLoginNext = new VelocityLibreLoginNext(this);
         injector.injectMembers(libreLoginNext);
@@ -100,8 +107,10 @@ public class VelocityBootstrap implements LibreLoginNextProvider<Player, Registe
 
     @Subscribe
     public void onInitialization(ProxyInitializeEvent event) {
-        // Initialize PacketEvents
-        PacketEvents.getAPI().init();
+        if (packetEventsManagedInternally) {
+            // Initialize PacketEvents
+            PacketEvents.getAPI().init();
+        }
 
         libreLoginNext.enable();
 
@@ -128,6 +137,12 @@ public class VelocityBootstrap implements LibreLoginNextProvider<Player, Registe
     @Subscribe
     public void onShutdown(ProxyShutdownEvent event) {
         libreLoginNext.disable();
-        PacketEvents.getAPI().terminate();
+        if (packetEventsManagedInternally) {
+            PacketEvents.getAPI().terminate();
+        }
+    }
+
+    public boolean isPacketEventsManagedInternally() {
+        return packetEventsManagedInternally;
     }
 }
